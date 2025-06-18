@@ -180,8 +180,6 @@ The server provides a comprehensive set of tools organized into several categori
 
 | Category | Tool | Description |
 |----------|------|-------------|
-| **Configuration** | `get_config` | Get the complete server configuration as JSON (includes blockedCommands, defaultShell, allowedDirectories, fileReadLineLimit, fileWriteLineLimit, telemetryEnabled) |
-| | `set_config_value` | Set a specific configuration value by key. Available settings: <br>• `blockedCommands`: Array of shell commands that cannot be executed<br>• `defaultShell`: Shell to use for commands (e.g., bash, zsh, powershell)<br>• `allowedDirectories`: Array of filesystem paths the server can access for file operations (⚠️ terminal commands can still access files outside these directories)<br>• `fileReadLineLimit`: Maximum lines to read at once (default: 1000)<br>• `fileWriteLineLimit`: Maximum lines to write at once (default: 50)<br>• `telemetryEnabled`: Enable/disable telemetry (boolean) |
 | **Terminal** | `execute_command` | Execute a terminal command with configurable timeout and shell selection |
 | | `read_output` | Read new output from a running terminal session |
 | | `force_terminate` | Force terminate a running terminal session |
@@ -310,45 +308,62 @@ For commands that may take a while:
 
 ## Configuration Management
 
-### ⚠️ Important Security Warnings
+### Environment Variable Configuration
 
-1. **Always change configuration in a separate chat window** from where you're doing your actual work. Claude may sometimes attempt to modify configuration settings (like `allowedDirectories`) if it encounters filesystem access restrictions.
+**Desktop Commander is now configured via environment variables** in the MCP server definition. This follows the MCP standard for server configuration.
 
-2. **The `allowedDirectories` setting currently only restricts filesystem operations**, not terminal commands. Terminal commands can still access files outside allowed directories. Full terminal sandboxing is on the roadmap.
+### Available Configuration Options
 
-### Configuration Tools
+Set these environment variables in your Claude Desktop configuration:
 
-You can manage server configuration using the provided tools:
+- **`DC_DEFAULT_SHELL`**: Shell to use for commands (e.g., `bash`, `zsh`, `powershell.exe`)
+- **`DC_TELEMETRY_ENABLED`**: Enable/disable telemetry (`true` or `false`)
+- **`DC_FILE_WRITE_LINE_LIMIT`**: Maximum lines per file write operation (default: `50`)
+- **`DC_FILE_READ_LINE_LIMIT`**: Maximum lines per file read operation (default: `1000`)
+- **`DC_ALLOWED_DIRECTORIES`**: JSON array of allowed directories (e.g., `["~/projects", "/opt/workspace"]`)
+- **`DC_BLOCKED_COMMANDS`**: JSON array of blocked commands (e.g., `["sudo", "rm -rf", "format"]`)
 
-```javascript
-// Get the entire config
-get_config({})
+### Example Configuration
 
-// Set a specific config value
-set_config_value({ "key": "defaultShell", "value": "/bin/zsh" })
+Add environment variables to your claude_desktop_config.json:
 
-// Set multiple config values using separate calls
-set_config_value({ "key": "defaultShell", "value": "/bin/bash" })
-set_config_value({ "key": "allowedDirectories", "value": ["/Users/username/projects"] })
+```json
+{
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "npx",
+      "args": ["@wonderwhy-er/desktop-commander@latest"],
+      "env": {
+        "DC_DEFAULT_SHELL": "bash",
+        "DC_TELEMETRY_ENABLED": "false",
+        "DC_FILE_WRITE_LINE_LIMIT": "25",
+        "DC_ALLOWED_DIRECTORIES": "[\"~/projects\", \"/opt/workspace\"]",
+        "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm -rf\", \"format\"]"
+      }
+    }
+  }
+}
 ```
 
-The configuration is saved to `config.json` in the server's working directory and persists between server restarts.
+### ⚠️ Important Security Notes
+
+1. **The `allowedDirectories` setting currently only restricts filesystem operations**, not terminal commands. Terminal commands can still access files outside allowed directories. Full terminal sandboxing is on the roadmap.
+
+2. **Environment variables are set once** when the MCP server starts. Changes require restarting Claude Desktop.
 
 #### Understanding fileWriteLineLimit
 
-The `fileWriteLineLimit` setting controls how many lines can be written in a single `write_file` operation (default: 50 lines). This limit exists for several important reasons:
+The `DC_FILE_WRITE_LINE_LIMIT` environment variable controls how many lines can be written in a single `write_file` operation (default: 50 lines). This limit exists for several important reasons:
 
 **Why the limit exists:**
 - **AIs are wasteful with tokens**: Instead of doing two small edits in a file, AIs may decide to rewrite the whole thing. We're trying to force AIs to do things in smaller changes as it saves time and tokens
 - **Claude UX message limits**: There are limits within one message and hitting "Continue" does not really work. What we're trying here is to make AI work in smaller chunks so when you hit that limit, multiple chunks have succeeded and that work is not lost - it just needs to restart from the last chunk
 
 **Setting the limit:**
-```javascript
-// You can set it to thousands if you want
-set_config_value({ "key": "fileWriteLineLimit", "value": 1000 })
-
-// Or keep it smaller to force more efficient behavior
-set_config_value({ "key": "fileWriteLineLimit", "value": 25 })
+```json
+"env": {
+  "DC_FILE_WRITE_LINE_LIMIT": "1000"
+}
 ```
 
 **Maximum value**: You can set it to thousands if you want - there's no technical restriction.
@@ -360,13 +375,13 @@ set_config_value({ "key": "fileWriteLineLimit", "value": 25 })
 
 ### Best Practices
 
-1. **Create a dedicated chat for configuration changes**: Make all your config changes in one chat, then start a new chat for your actual work.
+1. **Set environment variables before starting Claude**: Configuration is loaded once when the MCP server starts.
 
 2. **Be careful with empty `allowedDirectories`**: Setting this to an empty array (`[]`) grants access to your entire filesystem for file operations.
 
 3. **Use specific paths**: Instead of using broad paths like `/`, specify exact directories you want to access.
 
-4. **Always verify configuration after changes**: Use `get_config({})` to confirm your changes were applied correctly.
+4. **Restart Claude after configuration changes**: Environment variable changes require restarting Claude Desktop to take effect.
 
 ## Using Different Shells
 

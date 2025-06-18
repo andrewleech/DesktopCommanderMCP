@@ -606,6 +606,21 @@ export default async function setup() {
         // Prepare the new server config based on OS
         const configPrepStep = addSetupStep('prepare_server_config');
 
+        // Create default environment variables for Desktop Commander configuration
+        const createDefaultEnvVars = () => {
+            return {
+                // Desktop Commander configuration via environment variables
+                // Uncomment and modify the values below to customize your configuration:
+                
+                // "DC_DEFAULT_SHELL": isWindows ? "powershell.exe" : "bash",
+                // "DC_TELEMETRY_ENABLED": "true",  // Set to "false" to disable telemetry
+                // "DC_FILE_WRITE_LINE_LIMIT": "50",
+                // "DC_FILE_READ_LINE_LIMIT": "1000",
+                // "DC_ALLOWED_DIRECTORIES": JSON.stringify(["/home/user/projects", "/opt/workspace"]),
+                // "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format"])
+            };
+        };
+
         // Determine if running through npx or locally
         const isNpx = import.meta.url.includes('node_modules');
         await trackEvent('npx_setup_execution_mode', { isNpx });
@@ -619,10 +634,11 @@ export default async function setup() {
                 if (isNpx) {
                     // Debug with npx
                     logToFile('Setting up debug configuration with npx. The process will pause on start until a debugger connects.');
-                    // Add environment variables to help with debugging
+                    // Add environment variables to help with debugging and configuration
                     const debugEnv = {
                         "NODE_OPTIONS": "--trace-warnings --trace-exit",
-                        "DEBUG": "*"
+                        "DEBUG": "*",
+                        ...createDefaultEnvVars()
                     };
 
                     serverConfig = {
@@ -641,10 +657,11 @@ export default async function setup() {
                     // Debug with local installation path
                     const indexPath = join(__dirname, 'dist', 'index.js');
                     logToFile('Setting up debug configuration with local path. The process will pause on start until a debugger connects.');
-                    // Add environment variables to help with debugging
+                    // Add environment variables to help with debugging and configuration
                     const debugEnv = {
                         "NODE_OPTIONS": "--trace-warnings --trace-exit",
-                        "DEBUG": "*"
+                        "DEBUG": "*",
+                        ...createDefaultEnvVars()
                     };
 
                     serverConfig = {
@@ -664,7 +681,8 @@ export default async function setup() {
                         "command": isWindows ? "npx.cmd" : "npx",
                         "args": [
                             "@wonderwhy-er/desktop-commander@latest"
-                        ]
+                        ],
+                        "env": createDefaultEnvVars()
                     };
                     await trackEvent('npx_setup_config_standard_npx');
                 } else {
@@ -674,7 +692,8 @@ export default async function setup() {
                         "command": "node",
                         "args": [
                             indexPath.replace(/\\/g, '\\\\') // Double escape backslashes for JSON
-                        ]
+                        ],
+                        "env": createDefaultEnvVars()
                     };
                     await trackEvent('npx_setup_config_standard_local');
                 }
@@ -715,6 +734,17 @@ export default async function setup() {
         const appVersion = await getVersion()
         logToFile(`✅ Desktop Commander MCP v${appVersion} successfully added to Claude’s configuration.`);
         logToFile(`Configuration location: ${claudeConfigPath}`);
+        logToFile(``);
+        logToFile(`🔧 Desktop Commander is now configured via environment variables.`);
+        logToFile(`   You can customize behavior by setting these environment variables:`);
+        logToFile(`   • DC_DEFAULT_SHELL - Shell to use for commands`);
+        logToFile(`   • DC_TELEMETRY_ENABLED - Enable/disable telemetry (true/false)`);
+        logToFile(`   • DC_FILE_WRITE_LINE_LIMIT - Max lines per file write (default: 50)`);
+        logToFile(`   • DC_FILE_READ_LINE_LIMIT - Max lines per file read (default: 1000)`);
+        logToFile(`   • DC_ALLOWED_DIRECTORIES - JSON array of allowed directories`);
+        logToFile(`   • DC_BLOCKED_COMMANDS - JSON array of blocked commands`);
+        logToFile(`   See the generated config for commented examples.`);
+        logToFile(``);
 
         if (debugMode) {
             logToFile('\nTo use the debug server:\n1. Restart Claude if it\'s currently running\n2. The server will be available as "desktop-commander-debug" in Claude\'s MCP server list\n3. Connect your debugger to port 9229');

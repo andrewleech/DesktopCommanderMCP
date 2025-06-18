@@ -1,12 +1,5 @@
 import { z } from "zod";
 
-// Config tools schemas
-export const GetConfigArgsSchema = z.object({});
-
-export const SetConfigValueArgsSchema = z.object({
-  key: z.string(),
-  value: z.any(),
-});
 
 // Empty schemas
 export const ListProcessesArgsSchema = z.object({});

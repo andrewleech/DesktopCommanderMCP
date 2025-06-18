@@ -28,12 +28,9 @@ import {
     SearchFilesArgsSchema,
     GetFileInfoArgsSchema,
     SearchCodeArgsSchema,
-    GetConfigArgsSchema,
-    SetConfigValueArgsSchema,
     ListProcessesArgsSchema,
     EditBlockArgsSchema,
 } from './tools/schemas.js';
-import {getConfig, setConfigValue} from './tools/config.js';
 import {trackToolCall} from './utils/trackTools.js';
 
 import {VERSION} from './version.js';
@@ -78,44 +75,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         console.error("Generating tools list...");
         return {
             tools: [
-                // Configuration tools
-                {
-                    name: "get_config",
-                    description: `
-                        Get the complete server configuration as JSON. Config includes fields for:
-                        - blockedCommands (array of blocked shell commands)
-                        - defaultShell (shell to use for commands)
-                        - allowedDirectories (paths the server can access)
-                        - fileReadLineLimit (max lines for read_file, default 1000)
-                        - fileWriteLineLimit (max lines per write_file call, default 50)
-                        - telemetryEnabled (boolean for telemetry opt-in/out)
-                        -  version (version of the DesktopCommander)
-                        ${CMD_PREFIX_DESCRIPTION}`,
-                    inputSchema: zodToJsonSchema(GetConfigArgsSchema),
-                },
-                {
-                    name: "set_config_value",
-                    description: `
-                        Set a specific configuration value by key.
-                        
-                        WARNING: Should be used in a separate chat from file operations and 
-                        command execution to prevent security issues.
-                        
-                        Config keys include:
-                        - blockedCommands (array)
-                        - defaultShell (string)
-                        - allowedDirectories (array of paths)
-                        - fileReadLineLimit (number, max lines for read_file)
-                        - fileWriteLineLimit (number, max lines per write_file call)
-                        - telemetryEnabled (boolean)
-                        
-                        IMPORTANT: Setting allowedDirectories to an empty array ([]) allows full access 
-                        to the entire file system, regardless of the operating system.
-                        
-                        ${CMD_PREFIX_DESCRIPTION}`,
-                    inputSchema: zodToJsonSchema(SetConfigValueArgsSchema),
-                },
-
                 // Filesystem tools
                 {
                     name: "read_file",
@@ -414,28 +373,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
 
         // Using a more structured approach with dedicated handlers
         switch (name) {
-            // Config tools
-            case "get_config":
-                try {
-                    return await getConfig();
-                } catch (error) {
-                    capture('server_request_error', {message: `Error in get_config handler: ${error}`});
-                    return {
-                        content: [{type: "text", text: `Error: Failed to get configuration`}],
-                        isError: true,
-                    };
-                }
-            case "set_config_value":
-                try {
-                    return await setConfigValue(args);
-                } catch (error) {
-                    capture('server_request_error', {message: `Error in set_config_value handler: ${error}`});
-                    return {
-                        content: [{type: "text", text: `Error: Failed to set configuration value`}],
-                        isError: true,
-                    };
-                }
-
             // Terminal tools
             case "execute_command":
                 return await handlers.handleExecuteCommand(args);

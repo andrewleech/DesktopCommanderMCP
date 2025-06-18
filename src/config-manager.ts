@@ -1,10 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { existsSync } from 'fs';
-import { mkdir } from 'fs/promises';
 import os from 'os';
 import { VERSION } from './version.js';
-import { CONFIG_FILE } from './config.js';
 
 export interface ServerConfig {
   blockedCommands?: string[];
@@ -20,40 +15,22 @@ export interface ServerConfig {
  * Singleton config manager for the server
  */
 class ConfigManager {
-  private configPath: string;
   private config: ServerConfig = {};
   private initialized = false;
 
   constructor() {
-    // Get user's home directory
-    // Define config directory and file paths
-    this.configPath = CONFIG_FILE;
+    // Configuration is now loaded from environment variables
   }
 
   /**
-   * Initialize configuration - load from disk or create default
+   * Initialize configuration - load from environment variables
    */
   async init() {
     if (this.initialized) return;
 
     try {
-      // Ensure config directory exists
-      const configDir = path.dirname(this.configPath);
-      if (!existsSync(configDir)) {
-        await mkdir(configDir, { recursive: true });
-      }
-
-      // Check if config file exists
-      try {
-        await fs.access(this.configPath);
-        // Load existing config
-        const configData = await fs.readFile(this.configPath, 'utf8');
-        this.config = JSON.parse(configData);
-      } catch (error) {
-        // Config file doesn't exist, create default
-        this.config = this.getDefaultConfig();
-        await this.saveConfig();
-      }
+      // Load configuration from environment variables
+      this.config = this.loadConfigFromEnv();
       this.config['version'] = VERSION;
 
       this.initialized = true;
@@ -70,6 +47,65 @@ class ConfigManager {
    */
   async loadConfig() {
     return this.init();
+  }
+
+  /**
+   * Load configuration from environment variables with fallback to defaults
+   */
+  private loadConfigFromEnv(): ServerConfig {
+    const defaultConfig = this.getDefaultConfig();
+    
+    // Parse environment variables
+    const config: ServerConfig = {
+      blockedCommands: this.parseEnvArray('DC_BLOCKED_COMMANDS', defaultConfig.blockedCommands),
+      defaultShell: process.env.DC_DEFAULT_SHELL || defaultConfig.defaultShell,
+      allowedDirectories: this.parseEnvArray('DC_ALLOWED_DIRECTORIES', defaultConfig.allowedDirectories),
+      telemetryEnabled: this.parseEnvBoolean('DC_TELEMETRY_ENABLED', defaultConfig.telemetryEnabled),
+      fileWriteLineLimit: this.parseEnvNumber('DC_FILE_WRITE_LINE_LIMIT', defaultConfig.fileWriteLineLimit),
+      fileReadLineLimit: this.parseEnvNumber('DC_FILE_READ_LINE_LIMIT', defaultConfig.fileReadLineLimit)
+    };
+
+    return config;
+  }
+
+  /**
+   * Parse environment variable as array (JSON or comma-separated)
+   */
+  private parseEnvArray(envVar: string, defaultValue?: any[]): any[] {
+    const value = process.env[envVar];
+    if (!value) return defaultValue || [];
+    
+    // Try parsing as JSON first
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+      // If JSON parsing fails, try comma-separated values
+      return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    }
+    
+    return defaultValue || [];
+  }
+
+  /**
+   * Parse environment variable as boolean
+   */
+  private parseEnvBoolean(envVar: string, defaultValue?: boolean): boolean {
+    const value = process.env[envVar];
+    if (!value) return defaultValue ?? false;
+    
+    return value.toLowerCase() === 'true' || value === '1';
+  }
+
+  /**
+   * Parse environment variable as number
+   */
+  private parseEnvNumber(envVar: string, defaultValue?: number): number {
+    const value = process.env[envVar];
+    if (!value) return defaultValue ?? 0;
+    
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? (defaultValue ?? 0) : parsed;
   }
 
   /**
@@ -130,17 +166,6 @@ class ConfigManager {
     };
   }
 
-  /**
-   * Save config to disk
-   */
-  private async saveConfig() {
-    try {
-      await fs.writeFile(this.configPath, JSON.stringify(this.config, null, 2), 'utf8');
-    } catch (error) {
-      console.error('Failed to save config:', error);
-      throw error;
-    }
-  }
 
   /**
    * Get the entire config
@@ -159,51 +184,42 @@ class ConfigManager {
   }
 
   /**
-   * Set a specific configuration value
+   * Set a specific configuration value (now logs warning about env vars)
    */
   async setValue(key: string, value: any): Promise<void> {
     await this.init();
     
-    // Special handling for telemetry opt-out
-    if (key === 'telemetryEnabled' && value === false) {
-      // Get the current value before changing it
-      const currentValue = this.config[key];
-      
-      // Only capture the opt-out event if telemetry was previously enabled
-      if (currentValue !== false) {
-        // Import the capture function dynamically to avoid circular dependencies
-        const { capture } = await import('./utils/capture.js');
-        
-        // Send a final telemetry event noting that the user has opted out
-        // This helps us track opt-out rates while respecting the user's choice
-        await capture('server_telemetry_opt_out', {
-          reason: 'user_disabled',
-          prev_value: currentValue
-        });
-      }
-    }
+    console.warn(`Attempt to set configuration value '${key}' programmatically. Configuration is now managed via environment variables. Please set the appropriate environment variable instead.`);
+    console.warn(`Environment variable mapping:`);
+    console.warn(`  blockedCommands -> DC_BLOCKED_COMMANDS`);
+    console.warn(`  defaultShell -> DC_DEFAULT_SHELL`);
+    console.warn(`  allowedDirectories -> DC_ALLOWED_DIRECTORIES`);
+    console.warn(`  telemetryEnabled -> DC_TELEMETRY_ENABLED`);
+    console.warn(`  fileWriteLineLimit -> DC_FILE_WRITE_LINE_LIMIT`);
+    console.warn(`  fileReadLineLimit -> DC_FILE_READ_LINE_LIMIT`);
     
-    // Update the value
+    // Update the in-memory value for backward compatibility but don't persist it
     this.config[key] = value;
-    await this.saveConfig();
   }
 
   /**
-   * Update multiple configuration values at once
+   * Update multiple configuration values at once (now logs warning about env vars)
    */
   async updateConfig(updates: Partial<ServerConfig>): Promise<ServerConfig> {
     await this.init();
+    console.warn(`Attempting to update multiple configuration values programmatically. Configuration is now managed via environment variables.`);
+    
+    // Update in-memory values for backward compatibility but don't persist them
     this.config = { ...this.config, ...updates };
-    await this.saveConfig();
     return { ...this.config };
   }
 
   /**
-   * Reset configuration to defaults
+   * Reset configuration to defaults (now reloads from env vars)
    */
   async resetConfig(): Promise<ServerConfig> {
-    this.config = this.getDefaultConfig();
-    await this.saveConfig();
+    this.config = this.loadConfigFromEnv();
+    this.config['version'] = VERSION;
     return { ...this.config };
   }
 }
