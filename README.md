@@ -322,6 +322,16 @@ Set these environment variables in your Claude Desktop configuration:
 - **`DC_FILE_READ_LINE_LIMIT`**: Maximum lines per file read operation (default: `1000`)
 - **`DC_ALLOWED_DIRECTORIES`**: JSON array of allowed directories (e.g., `["~/projects", "/opt/workspace"]`)
 - **`DC_BLOCKED_COMMANDS`**: JSON array of blocked commands (e.g., `["sudo", "rm -rf", "format"]`)
+- **`DC_ALLOWED_COMMANDS`**: JSON array of allowed commands (**REQUIRED for command execution**)
+
+### ⚠️ Command Execution Security
+
+**Command execution is DISABLED by default** for security reasons. You must explicitly enable commands using `DC_ALLOWED_COMMANDS`.
+
+**Why this security model?**
+- AI agents can potentially run dangerous commands that could damage your system
+- Allowlist approach ensures only explicitly approved commands can be executed
+- Provides granular control over what operations the AI can perform
 
 ### Example Configuration
 
@@ -338,18 +348,42 @@ Add environment variables to your claude_desktop_config.json:
         "DC_TELEMETRY_ENABLED": "false",
         "DC_FILE_WRITE_LINE_LIMIT": "25",
         "DC_ALLOWED_DIRECTORIES": "[\"~/projects\", \"/opt/workspace\"]",
-        "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm -rf\", \"format\"]"
+        "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm -rf\", \"format\"]",
+        "DC_ALLOWED_COMMANDS": "[\"ls\", \"pwd\", \"git\", \"npm\", \"cat\", \"echo\"]"
       }
     }
   }
 }
 ```
 
+### Common Command Sets
+
+**Development Commands:**
+```json
+"DC_ALLOWED_COMMANDS": "[\"git\", \"npm\", \"yarn\", \"pip\", \"python\", \"node\", \"java\", \"mvn\", \"make\", \"cargo\", \"go\"]"
+```
+
+**File Operations:**
+```json
+"DC_ALLOWED_COMMANDS": "[\"ls\", \"dir\", \"pwd\", \"cd\", \"cat\", \"type\", \"head\", \"tail\", \"find\", \"grep\"]"
+```
+
+**Text Processing:**
+```json
+"DC_ALLOWED_COMMANDS": "[\"echo\", \"printf\", \"sort\", \"uniq\", \"wc\", \"awk\", \"sed\"]"
+```
+
 ### ⚠️ Important Security Notes
 
-1. **The `allowedDirectories` setting currently only restricts filesystem operations**, not terminal commands. Terminal commands can still access files outside allowed directories. Full terminal sandboxing is on the roadmap.
+1. **Command execution is disabled by default** - You must set `DC_ALLOWED_COMMANDS` to enable any commands
 
-2. **Environment variables are set once** when the MCP server starts. Changes require restarting Claude Desktop.
+2. **Allowlist + Blocklist security** - Commands must be in the allowlist AND not in the blocklist
+
+3. **The `allowedDirectories` setting currently only restricts filesystem operations**, not terminal commands. Terminal commands can still access files outside allowed directories. Full terminal sandboxing is on the roadmap.
+
+4. **Environment variables are set once** when the MCP server starts. Changes require restarting Claude Desktop.
+
+5. **Start with minimal permissions** - Only add commands you actually need, following the principle of least privilege.
 
 #### Understanding fileWriteLineLimit
 
@@ -375,13 +409,19 @@ The `DC_FILE_WRITE_LINE_LIMIT` environment variable controls how many lines can 
 
 ### Best Practices
 
-1. **Set environment variables before starting Claude**: Configuration is loaded once when the MCP server starts.
+1. **Start with no commands enabled**: Begin with an empty `DC_ALLOWED_COMMANDS` and add commands as needed
 
-2. **Be careful with empty `allowedDirectories`**: Setting this to an empty array (`[]`) grants access to your entire filesystem for file operations.
+2. **Use principle of least privilege**: Only enable commands you actually need for your specific use case
 
-3. **Use specific paths**: Instead of using broad paths like `/`, specify exact directories you want to access.
+3. **Review command combinations**: Be aware that some commands can be chained (e.g., `git && rm`) - the system checks all commands in complex statements
 
-4. **Restart Claude after configuration changes**: Environment variable changes require restarting Claude Desktop to take effect.
+4. **Set environment variables before starting Claude**: Configuration is loaded once when the MCP server starts.
+
+5. **Be careful with empty `allowedDirectories`**: Setting this to an empty array (`[]`) grants access to your entire filesystem for file operations.
+
+6. **Use specific paths**: Instead of using broad paths like `/`, specify exact directories you want to access.
+
+7. **Restart Claude after configuration changes**: Environment variable changes require restarting Claude Desktop to take effect.
 
 ## Using Different Shells
 

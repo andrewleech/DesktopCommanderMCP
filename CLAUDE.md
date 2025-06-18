@@ -59,10 +59,13 @@ Desktop Commander is an MCP (Model Context Protocol) server that provides AI age
 
 Configuration is managed via environment variables in the MCP server definition:
 - `DC_BLOCKED_COMMANDS` - JSON array of prohibited shell commands
+- `DC_ALLOWED_COMMANDS` - JSON array of allowed commands (REQUIRED for command execution)
 - `DC_DEFAULT_SHELL` - Shell for command execution  
 - `DC_ALLOWED_DIRECTORIES` - JSON array of filesystem access restrictions
 - `DC_FILE_READ_LINE_LIMIT`/`DC_FILE_WRITE_LINE_LIMIT` - File operation limits (default: 1000/50)
 - `DC_TELEMETRY_ENABLED` - Analytics opt-in/out (true/false)
+
+**SECURITY: Command execution disabled by default**
 
 Example configuration in claude_desktop_config.json:
 ```json
@@ -74,7 +77,8 @@ Example configuration in claude_desktop_config.json:
       "env": {
         "DC_DEFAULT_SHELL": "bash",
         "DC_TELEMETRY_ENABLED": "false",
-        "DC_ALLOWED_DIRECTORIES": "[\"~/projects\"]"
+        "DC_ALLOWED_DIRECTORIES": "[\"~/projects\"]",
+        "DC_ALLOWED_COMMANDS": "[\"ls\", \"pwd\", \"git\", \"npm\"]"
       }
     }
   }
@@ -114,6 +118,7 @@ The test suite uses Node.js test runner with comprehensive coverage:
 ## Key Development Notes
 
 - Build required before running (`npm run build`)
+- **Command execution disabled by default for security**
 - Configuration loaded from environment variables at startup
 - Configuration changes require restarting Claude Desktop
 - Terminal sessions maintained across tool calls

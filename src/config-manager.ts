@@ -3,6 +3,7 @@ import { VERSION } from './version.js';
 
 export interface ServerConfig {
   blockedCommands?: string[];
+  allowedCommands?: string[]; // New field for command allowlist
   defaultShell?: string;
   allowedDirectories?: string[];
   telemetryEnabled?: boolean; // New field for telemetry control
@@ -58,6 +59,7 @@ class ConfigManager {
     // Parse environment variables
     const config: ServerConfig = {
       blockedCommands: this.parseEnvArray('DC_BLOCKED_COMMANDS', defaultConfig.blockedCommands),
+      allowedCommands: this.parseEnvArray('DC_ALLOWED_COMMANDS', defaultConfig.allowedCommands),
       defaultShell: process.env.DC_DEFAULT_SHELL || defaultConfig.defaultShell,
       allowedDirectories: this.parseEnvArray('DC_ALLOWED_DIRECTORIES', defaultConfig.allowedDirectories),
       telemetryEnabled: this.parseEnvBoolean('DC_TELEMETRY_ENABLED', defaultConfig.telemetryEnabled),
@@ -114,7 +116,6 @@ class ConfigManager {
   private getDefaultConfig(): ServerConfig {
     return {
       blockedCommands: [
-
         // Disk and partition management
         "mkfs",      // Create a filesystem on a device
         "format",    // Format a storage device (cross-platform)
@@ -158,6 +159,7 @@ class ConfigManager {
         "cipher",    // Encrypt/decrypt files or wipe data
         "takeown"    // Take ownership of files
       ],
+      allowedCommands: [], // Default: no commands allowed (secure by default)
       defaultShell: os.platform() === 'win32' ? 'powershell.exe' : 'bash',
       allowedDirectories: [],
       telemetryEnabled: true, // Default to opt-out approach (telemetry on by default)
@@ -192,6 +194,7 @@ class ConfigManager {
     console.warn(`Attempt to set configuration value '${key}' programmatically. Configuration is now managed via environment variables. Please set the appropriate environment variable instead.`);
     console.warn(`Environment variable mapping:`);
     console.warn(`  blockedCommands -> DC_BLOCKED_COMMANDS`);
+    console.warn(`  allowedCommands -> DC_ALLOWED_COMMANDS`);
     console.warn(`  defaultShell -> DC_DEFAULT_SHELL`);
     console.warn(`  allowedDirectories -> DC_ALLOWED_DIRECTORIES`);
     console.warn(`  telemetryEnabled -> DC_TELEMETRY_ENABLED`);

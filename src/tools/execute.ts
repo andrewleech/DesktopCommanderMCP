@@ -28,11 +28,11 @@ export async function executeCommand(args: unknown): Promise<ServerResult> {
     });
   }
 
-  // Command validation is now async
-  const isAllowed = await commandManager.validateCommand(parsed.data.command);
-  if (!isAllowed) {
+  // Command validation is now async and returns detailed information
+  const validation = await commandManager.validateCommand(parsed.data.command);
+  if (!validation.allowed) {
     return {
-      content: [{ type: "text", text: `Error: Command not allowed: ${parsed.data.command}` }],
+      content: [{ type: "text", text: `Error: ${validation.reason || 'Command not allowed'}` }],
       isError: true,
     };
   }

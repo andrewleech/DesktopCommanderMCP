@@ -141,7 +141,7 @@ async function teardown(originalConfig) {
 /**
  * Test execution of non-blocked commands
  */
-async function testNonBlockedCommands() {
+async function testAllowedCommands() {
   console.log('\nTest 1: Execution of non-blocked commands');
   
   // Set blockedCommands to include specific harmful commands
@@ -202,7 +202,7 @@ async function testBlockedCommandsExecution() {
 /**
  * Test updating blockedCommands list
  */
-async function testUpdatingBlockedCommands() {
+async function testAllowlistBlocklistInteraction() {
   console.log('\nTest 3: Updating blockedCommands list');
   
   // Start with one blocked command
@@ -228,7 +228,7 @@ async function testUpdatingBlockedCommands() {
 /**
  * Test empty blockedCommands array
  */
-async function testEmptyBlockedCommands() {
+async function testEmptyAllowlist() {
   console.log('\nTest 4: Empty blockedCommands array');
   
   // Set blockedCommands to empty array
@@ -252,22 +252,22 @@ async function testEmptyBlockedCommands() {
 /**
  * Main test function
  */
-async function runBlockedCommandsTests() {
-  console.log('=== blockedCommands Configuration Tests ===\n');
+async function runAllowlistBlocklistTests() {
+  console.log('=== Command Allowlist/Blocklist Configuration Tests ===\n');
   
-  // Test 1: Execution of non-blocked commands
-  await testNonBlockedCommands();
+  // Test 1: Execution with allowlist enabled
+  await testAllowedCommands();
   
   // Test 2: Execution of blocked commands
   await testBlockedCommandsExecution();
   
-  // Test 3: Updating blockedCommands list
-  await testUpdatingBlockedCommands();
+  // Test 3: Allowlist + blocklist interaction
+  await testAllowlistBlocklistInteraction();
   
-  // Test 4: Empty blockedCommands array
-  await testEmptyBlockedCommands();
+  // Test 4: Empty allowlist (secure default)
+  await testEmptyAllowlist();
   
-  console.log('\n✅ All blockedCommands tests passed!');
+  console.log('\n✅ All command allowlist/blocklist tests passed!');
 }
 
 // Export the main test function
@@ -275,7 +275,7 @@ export default async function runTests() {
   let originalConfig;
   try {
     originalConfig = await setup();
-    await runBlockedCommandsTests();
+    await runAllowlistBlocklistTests();
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     return false;

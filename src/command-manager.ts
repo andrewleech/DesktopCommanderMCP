@@ -149,10 +149,11 @@ class CommandManager {
         }
     }
 
-    async validateCommand(command: string): Promise<boolean> {
+    async validateCommand(command: string): Promise<{ allowed: boolean; reason?: string }> {
         try {
-            // Get blocked commands from config
+            // Get configuration
             const config = await configManager.getConfig();
+            const allowedCommands = config.allowedCommands || [];
             const blockedCommands = config.blockedCommands || [];
             
             // Extract all commands from the command string
@@ -161,23 +162,70 @@ class CommandManager {
             // If there are no commands extracted, fall back to base command
             if (allCommands.length === 0) {
                 const baseCommand = this.getBaseCommand(command);
-                return !blockedCommands.includes(baseCommand);
+                
+                // Check allowlist first (secure by default)
+                if (allowedCommands.length === 0) {
+                    return {
+                        allowed: false,
+                        reason: `Command execution is disabled by default. To enable commands, set DC_ALLOWED_COMMANDS environment variable with the commands you want to allow. Attempted command: ${baseCommand}`
+                    };
+                }
+                
+                if (!allowedCommands.includes(baseCommand)) {
+                    return {
+                        allowed: false,
+                        reason: `Command '${baseCommand}' is not in the allowed commands list. Add it to DC_ALLOWED_COMMANDS environment variable to enable it.`
+                    };
+                }
+                
+                // Check blocklist (additional security layer)
+                if (blockedCommands.includes(baseCommand)) {
+                    return {
+                        allowed: false,
+                        reason: `Command '${baseCommand}' is explicitly blocked for security reasons.`
+                    };
+                }
+                
+                return { allowed: true };
             }
             
-            // Check if any of the extracted commands are in the blocked list
+            // Check allowlist for all extracted commands
+            if (allowedCommands.length === 0) {
+                return {
+                    allowed: false,
+                    reason: `Command execution is disabled by default. To enable commands, set DC_ALLOWED_COMMANDS environment variable with the commands you want to allow. Attempted commands: ${allCommands.join(', ')}`
+                };
+            }
+            
+            // Check if all commands are in the allowlist
             for (const cmd of allCommands) {
-                if (blockedCommands.includes(cmd)) {
-                    return false; // Command is blocked
+                if (!allowedCommands.includes(cmd)) {
+                    return {
+                        allowed: false,
+                        reason: `Command '${cmd}' is not in the allowed commands list. Add it to DC_ALLOWED_COMMANDS environment variable to enable it.`
+                    };
                 }
             }
             
-            // No commands were blocked
-            return true;
+            // Check if any commands are explicitly blocked
+            for (const cmd of allCommands) {
+                if (blockedCommands.includes(cmd)) {
+                    return {
+                        allowed: false,
+                        reason: `Command '${cmd}' is explicitly blocked for security reasons.`
+                    };
+                }
+            }
+            
+            // All commands are allowed and none are blocked
+            return { allowed: true };
         } catch (error) {
             console.error('Error validating command:', error);
-            // If there's an error, default to allowing the command
-            // This is less secure but prevents blocking all commands due to config issues
-            return true;
+            // If there's an error, default to denying the command for security
+            return {
+                allowed: false,
+                reason: `Command validation failed due to configuration error. Please check your environment variables.`
+            };
         }
     }
 }

@@ -112,4 +112,114 @@ DC_FILE_READ_LINE_LIMIT  → fileReadLineLimit (number)
 
 ---
 
-*This change addresses a fundamental security concern while aligning with MCP best practices and improving the overall user experience through explicit, transparent configuration management.*
+## Command Execution Security: Allowlist-Based System
+
+**Date:** 2025-06-18  
+**Branch:** PI  
+**Issue:** Command execution security vulnerability - unrestricted shell access
+
+### Problem Statement
+
+The original implementation allowed AI agents to execute any shell command that wasn't explicitly blocked, creating significant security risks:
+
+1. **Default Permissive Behavior**: Commands were allowed by default unless explicitly blocked
+2. **Broad Attack Surface**: AI agents could potentially execute dangerous commands that could:
+   - Access sensitive files anywhere on the system
+   - Modify or delete critical system files
+   - Install malware or unwanted software
+   - Access network resources and services
+   - Damage the operating system
+3. **Insufficient User Control**: Users had no granular control over which commands AI agents could execute
+4. **Risk of Privilege Escalation**: Combined with other vulnerabilities, could lead to system compromise
+
+### Solution Implemented
+
+Implemented a secure-by-default allowlist-based command execution system:
+
+#### 1. **Secure Default State**
+- **All command execution disabled by default**
+- Empty `allowedCommands` array prevents any command execution
+- Users must explicitly enable specific commands they want to allow
+
+#### 2. **Allowlist-Based Security Model**
+- New `DC_ALLOWED_COMMANDS` environment variable for specifying allowed commands
+- Commands must be explicitly listed to be executable
+- Follows principle of least privilege
+
+#### 3. **Dual-Layer Security (Allowlist + Blocklist)**
+- Commands must be in the allowlist AND not in the blocklist
+- Blocklist takes precedence for additional security
+- Allows for defense-in-depth security strategy
+
+#### 4. **Enhanced Command Validation**
+- Modified `validateCommand()` to return detailed validation information
+- Clear error messages guide users on how to enable commands
+- Improved parsing of complex command chains (handles `&&`, `||`, `;`, pipes)
+
+#### 5. **User-Friendly Configuration**
+- Setup script includes comprehensive command examples:
+  - Development tools: `git`, `npm`, `python`, `node`, etc.
+  - File operations: `ls`, `pwd`, `cat`, `grep`, etc.
+  - Text processing: `echo`, `sort`, `awk`, `sed`, etc.
+- Clear documentation with common command sets
+- Security warnings prominently displayed
+
+### Technical Implementation Details
+
+#### Configuration Schema Updates
+```typescript
+export interface ServerConfig {
+  allowedCommands?: string[]; // New: allowlist of permitted commands
+  blockedCommands?: string[]; // Existing: blocklist for additional security
+  // ... other config options
+}
+```
+
+#### Environment Variable
+```json
+"DC_ALLOWED_COMMANDS": "[\"ls\", \"pwd\", \"git\", \"npm\"]"
+```
+
+#### Validation Flow
+1. Parse command to extract all individual commands
+2. Check if allowlist is empty → deny if true (secure default)
+3. Check if all commands are in allowlist → deny if any missing
+4. Check if any commands are in blocklist → deny if any found
+5. Allow execution only if all checks pass
+
+### Security Benefits
+
+1. **Zero Trust Model**: No commands allowed unless explicitly permitted
+2. **Granular Control**: Users can enable only the specific commands they need
+3. **Defense in Depth**: Allowlist + blocklist provides multiple security layers
+4. **Audit Trail**: Clear logging of what commands are attempted and why they're blocked
+5. **User Awareness**: Explicit configuration makes users aware of security implications
+6. **Damage Limitation**: Even if AI agents are compromised, attack surface is limited to allowed commands
+
+### Migration Impact
+
+- **Breaking Change**: Existing users must set `DC_ALLOWED_COMMANDS` to enable command execution
+- **Documentation Updates**: Comprehensive security guidance added
+- **Setup Enhancement**: Automatic generation of command examples
+- **Test Updates**: Updated test suite to verify allowlist behavior
+
+### Example Configurations
+
+**Development Environment:**
+```json
+"DC_ALLOWED_COMMANDS": "[\"git\", \"npm\", \"yarn\", \"python\", \"node\", \"ls\", \"pwd\", \"cat\"]"
+```
+
+**Read-Only Environment:**
+```json
+"DC_ALLOWED_COMMANDS": "[\"ls\", \"pwd\", \"cat\", \"head\", \"tail\", \"find\", \"grep\"]"
+```
+
+**Secure Default (no commands):**
+```json
+"DC_ALLOWED_COMMANDS": "[]"
+```
+
+---
+
+*These changes address fundamental security concerns while providing users with granular control over AI agent capabilities, following security best practices of secure-by-default configuration and principle of least privilege.*

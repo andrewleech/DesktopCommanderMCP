@@ -617,7 +617,22 @@ export default async function setup() {
                 // "DC_FILE_WRITE_LINE_LIMIT": "50",
                 // "DC_FILE_READ_LINE_LIMIT": "1000",
                 // "DC_ALLOWED_DIRECTORIES": JSON.stringify(["/home/user/projects", "/opt/workspace"]),
-                // "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format"])
+                // "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format"]),
+                
+                // SECURITY: Command execution is DISABLED by default for safety.
+                // Uncomment and customize DC_ALLOWED_COMMANDS to enable specific commands:
+                // "DC_ALLOWED_COMMANDS": JSON.stringify([
+                //   // Safe file operations
+                //   "ls", "dir", "pwd", "cd", "cat", "type", "head", "tail", "find", "grep",
+                //   // Development tools  
+                //   "git", "npm", "yarn", "pip", "python", "node", "java", "mvn", "gradle",
+                //   // Build tools
+                //   "make", "cmake", "cargo", "go", "rustc", "gcc", "clang",
+                //   // Text processing
+                //   "echo", "printf", "sort", "uniq", "wc", "awk", "sed",
+                //   // Archive tools
+                //   "zip", "unzip", "tar", "gzip", "gunzip"
+                // ])
             };
         };
 
@@ -743,6 +758,10 @@ export default async function setup() {
         logToFile(`   • DC_FILE_READ_LINE_LIMIT - Max lines per file read (default: 1000)`);
         logToFile(`   • DC_ALLOWED_DIRECTORIES - JSON array of allowed directories`);
         logToFile(`   • DC_BLOCKED_COMMANDS - JSON array of blocked commands`);
+        logToFile(`   • DC_ALLOWED_COMMANDS - JSON array of allowed commands (REQUIRED for command execution)`);
+        logToFile(``);
+        logToFile(`⚠️  SECURITY NOTICE: Command execution is DISABLED by default.`);
+        logToFile(`   To enable commands, you must set DC_ALLOWED_COMMANDS with specific commands.`);
         logToFile(`   See the generated config for commented examples.`);
         logToFile(``);
 
