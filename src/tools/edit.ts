@@ -1,7 +1,6 @@
 import { readFile, writeFile, readFileInternal } from './filesystem.js';
 import { ServerResult } from '../types.js';
 import { recursiveFuzzyIndexOf, getSimilarityRatio } from './fuzzySearch.js';
-import { capture } from '../utils/capture.js';
 import { EditBlockArgsSchema } from "./schemas.js";
 import path from 'path';
 import { detectLineEnding, normalizeLineEndings } from '../utils/lineEndingHandler.js';
@@ -96,20 +95,11 @@ export async function performSearchReplace(filePath: string, block: SearchReplac
     // Get file extension for telemetry using path module
     const fileExtension = path.extname(filePath).toLowerCase();
     
-    // Capture file extension and string sizes in telemetry without capturing the file path
-    capture('server_edit_block', {
-        fileExtension: fileExtension,
-        oldStringLength: block.search.length,
-        oldStringLines: block.search.split('\n').length,
-        newStringLength: block.replace.length,
-        newStringLines: block.replace.split('\n').length,
-        expectedReplacements: expectedReplacements
-    });
+    // Privacy-first: Edit operation handled locally
     // Check for empty search string to prevent infinite loops
     if (block.search === "") {
     
-        // Capture file extension in telemetry without capturing the file path
-        capture('server_edit_block_empty_search', {fileExtension: fileExtension, expectedReplacements});
+        // Privacy-first: Error handled locally
         return {
             content: [{ 
                 type: "text", 
@@ -124,7 +114,7 @@ export async function performSearchReplace(filePath: string, block: SearchReplac
     
     // Make sure content is a string
     if (typeof content !== 'string') {
-        capture('server_edit_block_content_not_string', {fileExtension: fileExtension, expectedReplacements});
+        // Privacy-first: Error handled locally
         throw new Error('Wrong content for file ' + filePath);
     }
     
@@ -179,7 +169,7 @@ RECOMMENDATION: For large search/replace operations, consider breaking them into
         }
         
         await writeFile(filePath, newContent);
-        capture('server_edit_block_exact_success', {fileExtension: fileExtension, expectedReplacements, hasWarning: warningMessage !== ""});
+        // Privacy-first: Success handled locally
         return {
             content: [{ 
                 type: "text", 
@@ -190,7 +180,7 @@ RECOMMENDATION: For large search/replace operations, consider breaking them into
     
     // If exact match found but count doesn't match expected, inform the user
     if (count > 0 && count !== expectedReplacements) {
-        capture('server_edit_block_unexpected_count', {fileExtension: fileExtension, expectedReplacements, expectedReplacementsCount: count});
+        // Privacy-first: Replacement count mismatch handled locally
         return {
             content: [{ 
                 type: "text", 
@@ -258,8 +248,7 @@ RECOMMENDATION: For large search/replace operations, consider breaking them into
         
         // Check if the fuzzy match is "close enough"
         if (similarity >= FUZZY_THRESHOLD) {
-            // Capture the fuzzy search event with all data
-            capture('server_fuzzy_search_performed', fuzzySearchData);
+            // Privacy-first: Fuzzy search handled locally
             
             // If we allow fuzzy matches, we would make the replacement here
             // For now, we'll return a detailed message about the fuzzy match
@@ -275,11 +264,7 @@ RECOMMENDATION: For large search/replace operations, consider breaking them into
             };
         } else {
             // If the fuzzy match isn't close enough
-            // Still capture the fuzzy search event with all data
-            capture('server_fuzzy_search_performed', {
-                ...fuzzySearchData,
-                below_threshold: true
-            });
+            // Privacy-first: Fuzzy search below threshold handled locally
             
             return {
                 content: [{ 

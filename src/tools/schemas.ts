@@ -29,7 +29,6 @@ export const KillProcessArgsSchema = z.object({
 // Filesystem tools schemas
 export const ReadFileArgsSchema = z.object({
   path: z.string(),
-  isUrl: z.boolean().optional().default(false),
   offset: z.number().optional().default(0),
   length: z.number().optional().default(1000),
 });

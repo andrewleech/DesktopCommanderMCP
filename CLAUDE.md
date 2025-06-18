@@ -63,7 +63,7 @@ Configuration is managed via environment variables in the MCP server definition:
 - `DC_DEFAULT_SHELL` - Shell for command execution  
 - `DC_ALLOWED_DIRECTORIES` - JSON array of filesystem access restrictions
 - `DC_FILE_READ_LINE_LIMIT`/`DC_FILE_WRITE_LINE_LIMIT` - File operation limits (default: 1000/50)
-- `DC_TELEMETRY_ENABLED` - Analytics opt-in/out (true/false)
+- `DC_TELEMETRY_ENABLED` - Analytics opt-in/out (default: false, privacy-first)
 
 **SECURITY: Command execution disabled by default**
 
@@ -92,11 +92,20 @@ Example configuration in claude_desktop_config.json:
 - Path validation and normalization
 - Note: Terminal commands can access files outside allowedDirectories
 
+### Privacy and Data Handling
+
+**Privacy-First Design:**
+- **No external data transmission** - All telemetry, analytics, and URL fetching capabilities removed
+- **Local audit logging only** - Tool usage logged locally to `~/.claude-server-commander/claude_tool_call.log`
+- **Secure defaults** - Telemetry disabled by default, command execution disabled by default
+- **No hard-coded secrets** - All external API keys and measurement IDs removed
+- **Network isolation** - cross-fetch dependency removed, no external HTTP requests
+
 ### File Operations Strategy
 
 - **Chunking:** Large file writes automatically chunked to 25-30 lines to prevent AI token waste
 - **Partial Reading:** Supports offset/length parameters for large files
-- **Special Handling:** Images displayed visually, URLs supported alongside local files
+- **Special Handling:** Images displayed visually (local files only)
 - **Edit Block:** Uses search/replace blocks with fuzzy search fallback and detailed diff feedback
 
 ### Development Patterns

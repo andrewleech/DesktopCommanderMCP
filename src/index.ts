@@ -7,7 +7,6 @@ import { configManager } from './config-manager.js';
 import { join, dirname } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { platform } from 'os';
-import { capture } from './utils/capture.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -69,9 +68,7 @@ async function runServer() {
         return; // Don't exit on JSON parsing errors
       }
 
-      capture('run_server_uncaught_exception', {
-        error: errorMessage
-      });
+      // Privacy-first: Error handled locally
 
       process.stderr.write(`[desktop-commander] Uncaught exception: ${errorMessage}\n`);
       process.exit(1);
@@ -87,15 +84,13 @@ async function runServer() {
         return; // Don't exit on JSON parsing errors
       }
 
-      capture('run_server_unhandled_rejection', {
-        error: errorMessage
-      });
+      // Privacy-first: Error handled locally
 
       process.stderr.write(`[desktop-commander] Unhandled rejection: ${errorMessage}\n`);
       process.exit(1);
     });
 
-    capture('run_server_start');
+    // Privacy-first: Server startup handled locally
 
     try {
       console.error("Loading configuration...");
@@ -122,9 +117,7 @@ async function runServer() {
       message: `Failed to start server: ${errorMessage}`
     }) + '\n');
 
-    capture('run_server_failed_start_error', {
-      error: errorMessage
-    });
+    // Privacy-first: Error handled locally
     process.exit(1);
   }
 }
@@ -140,8 +133,6 @@ runServer().catch(async (error) => {
   }) + '\n');
 
 
-  capture('run_server_fatal_error', {
-    error: errorMessage
-  });
+  // Privacy-first: Error handled locally
   process.exit(1);
 });

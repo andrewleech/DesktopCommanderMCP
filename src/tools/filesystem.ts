@@ -1,10 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import os from 'os';
-import fetch from 'cross-fetch';
 import { createReadStream } from 'fs';
 import { createInterface } from 'readline';
-import {capture} from '../utils/capture.js';
 import {withTimeout} from '../utils/withTimeout.js';
 import {configManager} from '../config-manager.js';
 
@@ -141,11 +139,7 @@ export async function validatePath(requestedPath: string): Promise<string> {
             
         // Check if path is allowed
         if (!(await isPathAllowed(absolute))) {
-            capture('server_path_validation_error', {
-                error: 'Path not allowed',
-                allowedDirsCount: (await getAllowedDirs()).length
-            });
-
+            // Privacy-first: Path validation handled locally
             throw new Error(`Path not allowed: ${requestedPath}. Must be within one of these directories: ${(await getAllowedDirs()).join(', ')}`);
         }
         
@@ -175,11 +169,7 @@ export async function validatePath(requestedPath: string): Promise<string> {
     );
     
     if (result === null) {
-        // Keep original path in error for AI but a generic message for telemetry
-        capture('server_path_validation_timeout', {
-            timeoutMs: PATH_VALIDATION_TIMEOUT
-        });
-
+        // Privacy-first: Path validation timeout handled locally
         throw new Error(`Path validation failed for path: ${requestedPath}`);
     }
     
@@ -194,60 +184,6 @@ export interface FileResult {
 }
 
 
-/**
- * Read file content from a URL
- * @param url URL to fetch content from
- * @returns File content or file result with metadata
- */
-export async function readFileFromUrl(url: string): Promise<FileResult> {
-    // Import the MIME type utilities
-    const { isImageFile } = await import('./mime-types.js');
-    
-    // Set up fetch with timeout
-    const FETCH_TIMEOUT_MS = 30000;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    
-    try {
-        const response = await fetch(url, {
-            signal: controller.signal
-        });
-        
-        // Clear the timeout since fetch completed
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        // Get MIME type from Content-Type header
-        const contentType = response.headers.get('content-type') || 'text/plain';
-        const isImage = isImageFile(contentType);
-        
-        if (isImage) {
-            // For images, convert to base64
-            const buffer = await response.arrayBuffer();
-            const content = Buffer.from(buffer).toString('base64');
-            
-            return { content, mimeType: contentType, isImage };
-        } else {
-            // For text content
-            const content = await response.text();
-            
-            return { content, mimeType: contentType, isImage };
-        }
-    } catch (error) {
-        // Clear the timeout to prevent memory leaks
-        clearTimeout(timeoutId);
-        
-        // Return error information instead of throwing
-        const errorMessage = error instanceof DOMException && error.name === 'AbortError'
-            ? `URL fetch timed out after ${FETCH_TIMEOUT_MS}ms: ${url}`
-            : `Failed to fetch URL: ${error instanceof Error ? error.message : String(error)}`;
-
-        throw new Error(errorMessage);
-    }
-}
 
 /**
  * Read file content using smart positioning for optimal performance
@@ -517,17 +453,10 @@ export async function readFileFromDisk(filePath: string, offset: number = 0, len
     try {
         const stats = await fs.stat(validPath);
         
-        // Capture file extension in telemetry without capturing the file path
-        capture('server_read_file', {
-            fileExtension: fileExtension,
-            offset: offset,
-            length: length,
-            fileSize: stats.size
-        });
+        // Privacy-first: File read operation handled locally
     } catch (error) {
         console.error('error catch ' + error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        capture('server_read_file_error', {error: errorMessage, fileExtension: fileExtension});
+        // Privacy-first: Error handled locally
         // If we can't stat the file, continue anyway and let the read operation handle errors
     }
     
@@ -575,17 +504,14 @@ export async function readFileFromDisk(filePath: string, offset: number = 0, len
 }
 
 /**
- * Read a file from either the local filesystem or a URL
- * @param filePath Path to the file or URL
- * @param isUrl Whether the path is a URL
+ * Read a file from the local filesystem
+ * @param filePath Path to the file
  * @param offset Starting line number to read from (default: 0)
  * @param length Maximum number of lines to read (default: from config or 1000)
  * @returns File content or file result with metadata
  */
-export async function readFile(filePath: string, isUrl?: boolean, offset?: number, length?: number): Promise<FileResult> {
-    return isUrl 
-        ? readFileFromUrl(filePath)
-        : readFileFromDisk(filePath, offset, length);
+export async function readFile(filePath: string, offset?: number, length?: number): Promise<FileResult> {
+    return readFileFromDisk(filePath, offset, length);
 }
 
 /**
@@ -690,13 +616,7 @@ export async function writeFile(filePath: string, content: string, mode: 'rewrit
     const contentBytes = Buffer.from(content).length;
     const lineCount = content.split('\n').length;
 
-    // Capture file extension and operation details in telemetry without capturing the file path
-    capture('server_write_file', {
-        fileExtension: fileExtension,
-        mode: mode,
-        contentBytes: contentBytes,
-        lineCount: lineCount
-    });
+    // Privacy-first: File write operation handled locally
 
     // Use different fs methods based on mode
     if (mode === 'append') {
@@ -790,20 +710,10 @@ export async function searchFiles(rootPath: string, pattern: string): Promise<st
         const validPath = await validatePath(rootPath);
         await search(validPath);
 
-        // Log only the count of found files, not their paths
-        capture('server_search_files_complete', {
-            resultsCount: results.length,
-            patternLength: pattern.length
-        });
-
+        // Privacy-first: Search operation handled locally
         return results;
     } catch (error) {
-        // For telemetry only - sanitize error info
-        capture('server_search_files_error', {
-            errorType: error instanceof Error ? error.name : 'Unknown',
-            error: 'Error with root path',
-            isRootPathError: true
-        });
+        // Privacy-first: Error handled locally
 
         // Re-throw the original error for the caller
         throw error;

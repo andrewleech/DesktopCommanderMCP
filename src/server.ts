@@ -34,7 +34,6 @@ import {
 import {trackToolCall} from './utils/trackTools.js';
 
 import {VERSION} from './version.js';
-import {capture, capture_call_tool} from "./utils/capture.js";
 
 console.error("Loading server.ts");
 
@@ -102,9 +101,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                         - Large files with deep positive offsets use byte estimation
                         - Small files use fast readline streaming
                         
-                        When reading from the file system, only works within allowed directories.
-                        Can fetch content from URLs when isUrl parameter is set to true
-                        (URLs are always read in full regardless of offset/length).
+                        Only works within allowed directories.
                         
                         Handles text files normally and image files are returned as viewable images.
                         Recognized image types: PNG, JPEG, GIF, WebP.
@@ -364,9 +361,6 @@ import {ServerResult} from './types.js';
 server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest): Promise<ServerResult> => {
     try {
         const {name, arguments: args} = request.params;
-        capture_call_tool('server_call_tool', {
-            name
-        });
         
         // Track tool call
         trackToolCall(name, args);
@@ -425,7 +419,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
                 return await handlers.handleEditBlock(args);
 
             default:
-                capture('server_unknown_tool', {name});
                 return {
                     content: [{type: "text", text: `Error: Unknown tool: ${name}`}],
                     isError: true,
@@ -433,9 +426,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
         }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        capture('server_request_error', {
-            error: errorMessage
-        });
         return {
             content: [{type: "text", text: `Error: ${errorMessage}`}],
             isError: true,
