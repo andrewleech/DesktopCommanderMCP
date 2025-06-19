@@ -279,21 +279,30 @@ export default async function setup() {
                 "DC_ALLOWED_DIRECTORIES": JSON.stringify([downloadsPath]),
                 
                 // Command restrictions (add dangerous commands here)
-                "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format", "del /f /s /q"]),
+                "DC_BLOCKED_COMMANDS": JSON.stringify(
+                    isWindows ? [
+                        // Windows dangerous commands
+                        "del", "rmdir", "format", "diskpart", "shutdown", "restart", "taskkill", "net", "sc"
+                    ] : [
+                        // Unix/Linux dangerous commands
+                        "sudo", "rm", "rmdir", "chmod", "chown", "mount", "umount", "fdisk", "dd", "mkfs"
+                    ]
+                ),
                 
                 // Privacy settings
                 "DC_TELEMETRY_ENABLED": "false",
                 
                 // SECURITY: Command execution is DISABLED by default for safety.
-                // The commands below are enabled as safe defaults for basic file operations and git:
-                "DC_ALLOWED_COMMANDS": JSON.stringify([
-                    // Safe file operations
-                    "ls", "dir", "pwd", "cd", "cat", "type", "head", "tail", "find", "grep",
-                    // Development tools
-                    "git", "npm", "yarn", "pip", "python", "node",
-                    // Text processing
-                    "echo", "printf", "sort", "uniq", "wc"
-                ])
+                // Only basic read-only commands are enabled by default, platform-specific:
+                "DC_ALLOWED_COMMANDS": JSON.stringify(
+                    isWindows ? [
+                        // Windows read-only file operations
+                        "dir", "type", "cd", "where", "echo"
+                    ] : [
+                        // Unix/Linux read-only file operations  
+                        "ls", "cat", "pwd", "which", "echo"
+                    ]
+                )
             };
         };
 
