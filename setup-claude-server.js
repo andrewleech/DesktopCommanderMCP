@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { homedir, platform } from 'os';
 import { join } from 'path';
 import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync } from 'fs';
@@ -264,26 +265,29 @@ export default async function setup() {
                 // Desktop Commander configuration via environment variables
                 // Uncomment and modify the values below to customize your configuration:
                 
-                // "DC_DEFAULT_SHELL": isWindows ? "powershell.exe" : "bash",
-                // "DC_FILE_WRITE_LINE_LIMIT": "50",
-                // "DC_FILE_READ_LINE_LIMIT": "1000",
-                // "DC_ALLOWED_DIRECTORIES": JSON.stringify(["/home/user/projects", "/opt/workspace"]),
+                "DC_DEFAULT_SHELL": isWindows ? "powershell.exe" : "bash",
+                "DC_FILE_WRITE_LINE_LIMIT": "50",
+                "DC_FILE_READ_LINE_LIMIT": "1000",
+                "DC_ALLOWED_DIRECTORIES": JSON.stringify(["/home/user/projects", "/opt/workspace"]),
                 // "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format"]),
                 
                 // SECURITY: Command execution is DISABLED by default for safety.
                 // Uncomment and customize DC_ALLOWED_COMMANDS to enable specific commands:
-                // "DC_ALLOWED_COMMANDS": JSON.stringify([
-                //   // Safe file operations
-                //   "ls", "dir", "pwd", "cd", "cat", "type", "head", "tail", "find", "grep",
+                 "DC_ALLOWED_COMMANDS": JSON.stringify([
+                   // Safe file operations
+                   "ls", "dir", "pwd", "cd", 
+                // "cat", "type", "head", "tail", "find", "grep",
                 //   // Development tools  
+                  "git", 
                 //   "git", "npm", "yarn", "pip", "python", "node", "java", "mvn", "gradle",
                 //   // Build tools
                 //   "make", "cmake", "cargo", "go", "rustc", "gcc", "clang",
-                //   // Text processing
+                   // Text processing
                 //   "echo", "printf", "sort", "uniq", "wc", "awk", "sed",
                 //   // Archive tools
                 //   "zip", "unzip", "tar", "gzip", "gunzip"
-                // ])
+                 ])
+                
             };
         };
 
