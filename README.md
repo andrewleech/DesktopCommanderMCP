@@ -98,12 +98,13 @@ Install directly from GitHub using npx:
 ```bash
 npx github:andrewleech/DesktopCommanderMCP
 ```
-Restart Claude if running.
 
 For debugging mode (allows Node.js inspector connection):
 ```bash
 npx github:andrewleech/DesktopCommanderMCP --debug
 ```
+
+> **📝 Important:** This installation command will automatically add the Desktop Commander configuration to your Claude Desktop settings. You may need to **manually restart Claude Desktop** for the changes to take effect.
 
 **Updates:** Re-run the npx command to get latest version  
 **Uninstall:** Remove MCP server entry from Claude config
@@ -134,12 +135,20 @@ If you prefer to configure manually, add this entry to your claude_desktop_confi
       "command": "node",
       "args": [
         "/path/to/your/DesktopCommanderMCP/dist/index.js"
-      ]
+      ],
+      "env": {
+        "DC_DEFAULT_SHELL": "bash",
+        "DC_FILE_WRITE_LINE_LIMIT": "50",
+        "DC_FILE_READ_LINE_LIMIT": "1000",
+        "DC_ALLOWED_DIRECTORIES": "[\"~/Downloads\"]",
+        "DC_BLOCKED_COMMANDS": "[\"sudo\",\"rm\",\"chmod\",\"chown\"]",
+        "DC_ALLOWED_COMMANDS": "[\"ls\",\"cat\",\"pwd\",\"which\",\"echo\"]"
+      }
     }
   }
 }
 ```
-Replace `/path/to/your/` with the actual path where you cloned the repository.
+Replace `/path/to/your/` with the actual path where you cloned the repository. Adjust the environment variables based on your platform (use Windows-specific commands if on Windows).
 
 **Manual Update:** `cd DesktopCommanderMCP && git pull && npm run build`  
 **Uninstall:** Remove the "desktop-commander" entry from your claude_desktop_config.json file
@@ -328,10 +337,11 @@ Add environment variables to your claude_desktop_config.json:
       "args": ["/path/to/your/DesktopCommanderMCP/dist/index.js"],
       "env": {
         "DC_DEFAULT_SHELL": "bash",
-        "DC_FILE_WRITE_LINE_LIMIT": "25",
-        "DC_ALLOWED_DIRECTORIES": "[\"~/projects\", \"/opt/workspace\"]",
-        "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm -rf\", \"format\"]",
-        "DC_ALLOWED_COMMANDS": "[\"ls\", \"pwd\", \"git\", \"npm\", \"cat\", \"echo\"]"
+        "DC_FILE_WRITE_LINE_LIMIT": "50",
+        "DC_FILE_READ_LINE_LIMIT": "1000",
+        "DC_ALLOWED_DIRECTORIES": "[\"~/Downloads\"]",
+        "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm\", \"chmod\", \"chown\"]",
+        "DC_ALLOWED_COMMANDS": "[\"ls\", \"cat\", \"pwd\", \"which\", \"echo\"]"
       }
     }
   }
