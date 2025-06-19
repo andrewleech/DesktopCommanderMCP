@@ -115,7 +115,7 @@ There are several ways to install:
 
 **Option 1: Direct installation (recommended)**
 ```bash
-npx github:andrewleech/DesktopCommanderMCP setup
+npx github:andrewleech/DesktopCommanderMCP
 ```
 
 **Option 2: Install from source**

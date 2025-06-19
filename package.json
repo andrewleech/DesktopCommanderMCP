@@ -10,10 +10,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "bin": {
-    "desktop-commander": "dist/index.js",
-    "setup": "dist/setup-claude-server.js"
-  },
+  "bin": "dist/setup-claude-server.js",
   "files": [
     "dist",
     "logo.png",

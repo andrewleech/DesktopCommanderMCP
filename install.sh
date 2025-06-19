@@ -42,10 +42,10 @@ fi
 
 # Install directly using npx
 echo "Installing Desktop Commander Private..."
-if npx github:andrewleech/DesktopCommanderMCP setup; then
+if npx github:andrewleech/DesktopCommanderMCP; then
     print_success "Setup completed successfully!"
     echo "Desktop Commander Private has been installed directly via npx"
-    echo "To update in the future, re-run: npx github:andrewleech/DesktopCommanderMCP setup"
+    echo "To update in the future, re-run: npx github:andrewleech/DesktopCommanderMCP"
 else
     print_error "Installation failed. Check the console output above for more information."
     exit 1

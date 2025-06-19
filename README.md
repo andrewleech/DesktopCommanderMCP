@@ -96,13 +96,13 @@ First, ensure you've downloaded and installed the [Claude Desktop app](https://c
 Install directly from GitHub using npx:
 
 ```bash
-npx github:andrewleech/DesktopCommanderMCP setup
+npx github:andrewleech/DesktopCommanderMCP
 ```
 Restart Claude if running.
 
 For debugging mode (allows Node.js inspector connection):
 ```bash
-npx github:andrewleech/DesktopCommanderMCP setup --debug
+npx github:andrewleech/DesktopCommanderMCP --debug
 ```
 
 **Updates:** Re-run the npx command to get latest version  
@@ -147,7 +147,7 @@ Replace `/path/to/your/` with the actual path where you cloned the repository.
 ## Updating & Uninstalling Desktop Commander
 
 ### Updates
-**Option 1 (npx):** Re-run `npx github:andrewleech/DesktopCommanderMCP setup`  
+**Option 1 (npx):** Re-run `npx github:andrewleech/DesktopCommanderMCP`  
 **Option 2 (cloned):** `cd DesktopCommanderMCP && git pull && npm run setup`  
 **Option 3 (manual):** Update your local installation and restart Claude
 
