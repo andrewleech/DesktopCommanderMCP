@@ -30,6 +30,7 @@ import {
     SearchCodeArgsSchema,
     ListProcessesArgsSchema,
     EditBlockArgsSchema,
+    LatestScreenshotArgsSchema,
 } from './tools/schemas.js';
 import {trackToolCall} from './utils/trackTools.js';
 
@@ -287,6 +288,23 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                     inputSchema: zodToJsonSchema(EditBlockArgsSchema),
                 },
                 
+                // Screenshot tools
+                {
+                    name: "latest_screenshot",
+                    description: `
+                        Find and display the most recent screenshot from the user's Screenshots folder.
+                        
+                        Searches the ~/Pictures/Screenshots directory for image files and returns 
+                        the most recently modified screenshot along with its metadata.
+                        
+                        Supported image formats: PNG, JPEG, GIF, BMP, WebP, TIFF
+                        
+                        No parameters needed - automatically searches the default Screenshots location.
+                        
+                        ${CMD_PREFIX_DESCRIPTION}`,
+                    inputSchema: zodToJsonSchema(LatestScreenshotArgsSchema),
+                },
+                
                 // Terminal tools
                 {
                     name: "execute_command",
@@ -417,6 +435,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest)
 
             case "edit_block":
                 return await handlers.handleEditBlock(args);
+
+            case "latest_screenshot":
+                return await handlers.handleLatestScreenshot(args);
 
             default:
                 return {

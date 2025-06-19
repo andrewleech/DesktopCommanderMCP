@@ -85,3 +85,8 @@ export const EditBlockArgsSchema = z.object({
   new_string: z.string(),
   expected_replacements: z.number().optional().default(1),
 });
+
+// Screenshot tools schema
+export const LatestScreenshotArgsSchema = z.object({
+  // No parameters needed - always searches the default Screenshots folder
+});
