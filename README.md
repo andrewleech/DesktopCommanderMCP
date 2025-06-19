@@ -301,7 +301,6 @@ For commands that may take a while:
 Set these environment variables in your Claude Desktop configuration:
 
 - **`DC_DEFAULT_SHELL`**: Shell to use for commands (e.g., `bash`, `zsh`, `powershell.exe`)
-- **`DC_TELEMETRY_ENABLED`**: Enable/disable telemetry (`true` or `false`)
 - **`DC_FILE_WRITE_LINE_LIMIT`**: Maximum lines per file write operation (default: `50`)
 - **`DC_FILE_READ_LINE_LIMIT`**: Maximum lines per file read operation (default: `1000`)
 - **`DC_ALLOWED_DIRECTORIES`**: JSON array of allowed directories (e.g., `["~/projects", "/opt/workspace"]`)
@@ -329,7 +328,6 @@ Add environment variables to your claude_desktop_config.json:
       "args": ["/path/to/your/DesktopCommanderMCP/dist/index.js"],
       "env": {
         "DC_DEFAULT_SHELL": "bash",
-        "DC_TELEMETRY_ENABLED": "false",
         "DC_FILE_WRITE_LINE_LIMIT": "25",
         "DC_ALLOWED_DIRECTORIES": "[\"~/projects\", \"/opt/workspace\"]",
         "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm -rf\", \"format\"]",

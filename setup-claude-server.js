@@ -282,15 +282,12 @@ export default async function setup() {
                 "DC_BLOCKED_COMMANDS": JSON.stringify(
                     isWindows ? [
                         // Windows dangerous commands
-                        "del", "rmdir", "format", "diskpart", "shutdown", "restart", "taskkill", "net", "sc"
+                        "sudo", "del", "rmdir", "format", "diskpart", "shutdown", "restart", "taskkill", "net", "sc"
                     ] : [
                         // Unix/Linux dangerous commands
                         "sudo", "rm", "rmdir", "chmod", "chown", "mount", "umount", "fdisk", "dd", "mkfs"
                     ]
                 ),
-                
-                // Privacy settings
-                "DC_TELEMETRY_ENABLED": "false",
                 
                 // SECURITY: Command execution is DISABLED by default for safety.
                 // Only basic read-only commands are enabled by default, platform-specific:

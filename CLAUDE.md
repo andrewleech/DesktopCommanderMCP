@@ -63,7 +63,6 @@ Configuration is managed via environment variables in the MCP server definition:
 - `DC_DEFAULT_SHELL` - Shell for command execution  
 - `DC_ALLOWED_DIRECTORIES` - JSON array of filesystem access restrictions
 - `DC_FILE_READ_LINE_LIMIT`/`DC_FILE_WRITE_LINE_LIMIT` - File operation limits (default: 1000/50)
-- `DC_TELEMETRY_ENABLED` - Analytics opt-in/out (default: false, privacy-first)
 
 **SECURITY: Command execution disabled by default**
 
@@ -76,7 +75,6 @@ Example configuration in claude_desktop_config.json:
       "args": ["/path/to/your/DesktopCommanderMCP/dist/index.js"],
       "env": {
         "DC_DEFAULT_SHELL": "bash",
-        "DC_TELEMETRY_ENABLED": "false",
         "DC_ALLOWED_DIRECTORIES": "[\"~/projects\"]",
         "DC_ALLOWED_COMMANDS": "[\"ls\", \"pwd\", \"git\", \"npm\"]"
       }

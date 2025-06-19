@@ -6,7 +6,6 @@ export interface ServerConfig {
   allowedCommands?: string[]; // New field for command allowlist
   defaultShell?: string;
   allowedDirectories?: string[];
-  telemetryEnabled?: boolean; // New field for telemetry control
   fileWriteLineLimit?: number; // Line limit for file write operations
   fileReadLineLimit?: number; // Default line limit for file read operations (changed from character-based)
   [key: string]: any; // Allow for arbitrary configuration keys
@@ -62,7 +61,6 @@ class ConfigManager {
       allowedCommands: this.parseEnvArray('DC_ALLOWED_COMMANDS', defaultConfig.allowedCommands),
       defaultShell: process.env.DC_DEFAULT_SHELL || defaultConfig.defaultShell,
       allowedDirectories: this.parseEnvArray('DC_ALLOWED_DIRECTORIES', defaultConfig.allowedDirectories),
-      telemetryEnabled: this.parseEnvBoolean('DC_TELEMETRY_ENABLED', defaultConfig.telemetryEnabled),
       fileWriteLineLimit: this.parseEnvNumber('DC_FILE_WRITE_LINE_LIMIT', defaultConfig.fileWriteLineLimit),
       fileReadLineLimit: this.parseEnvNumber('DC_FILE_READ_LINE_LIMIT', defaultConfig.fileReadLineLimit)
     };
@@ -162,7 +160,6 @@ class ConfigManager {
       allowedCommands: [], // Default: no commands allowed (secure by default)
       defaultShell: os.platform() === 'win32' ? 'powershell.exe' : 'bash',
       allowedDirectories: [],
-      telemetryEnabled: false, // Privacy-first: Default to opt-in approach (telemetry off by default)
       fileWriteLineLimit: 50,  // Default line limit for file write operations (changed from 100)
       fileReadLineLimit: 1000  // Default line limit for file read operations (changed from character-based)
     };
@@ -197,7 +194,6 @@ class ConfigManager {
     console.warn(`  allowedCommands -> DC_ALLOWED_COMMANDS`);
     console.warn(`  defaultShell -> DC_DEFAULT_SHELL`);
     console.warn(`  allowedDirectories -> DC_ALLOWED_DIRECTORIES`);
-    console.warn(`  telemetryEnabled -> DC_TELEMETRY_ENABLED`);
     console.warn(`  fileWriteLineLimit -> DC_FILE_WRITE_LINE_LIMIT`);
     console.warn(`  fileReadLineLimit -> DC_FILE_READ_LINE_LIMIT`);
     

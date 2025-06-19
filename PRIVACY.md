@@ -78,16 +78,6 @@ We take your privacy seriously:
 
 Telemetry data is retained for a period of 14 months, after which it is automatically deleted from Google Analytics.
 
-## User Control
-
-Telemetry is enabled by default, but you can disable it at any time:
-
-1. Edit your configuration file at `~/.claude-server-commander/config.json`
-2. Set `"telemetryEnabled": false`
-3. Restart the application
-
-When telemetry is disabled, no data will be sent to our servers. Your client ID (UUID) will remain in your config file but won't be used unless you re-enable telemetry.
-
 ## Legal Basis
 
 We collect this data based on our legitimate interest (GDPR Article 6(1)(f)) to improve our software. Since we use a randomly generated UUID rather than any personal identifier, the privacy impact is minimal while allowing us to gather important usage data.

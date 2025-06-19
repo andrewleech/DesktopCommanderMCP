@@ -56,9 +56,8 @@ telemetryEnabled: true, // Default to opt-out approach (telemetry on by default)
 ```
 
 **New Configuration:**
-```typescript
-telemetryEnabled: false, // Privacy-first: Default to opt-in approach (telemetry off by default)
-```
+Completely delted all functionality related to `telemetryEnabled`
+
 
 **Impact:** Users are now opted-out by default and must explicitly enable any remaining telemetry functionality.
 

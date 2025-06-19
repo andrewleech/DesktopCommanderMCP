@@ -41,7 +41,6 @@ Migrated from MCP-based configuration to environment variable configuration foll
 DC_BLOCKED_COMMANDS      → blockedCommands (JSON array)
 DC_DEFAULT_SHELL         → defaultShell (string)
 DC_ALLOWED_DIRECTORIES   → allowedDirectories (JSON array)
-DC_TELEMETRY_ENABLED     → telemetryEnabled (boolean)
 DC_FILE_WRITE_LINE_LIMIT → fileWriteLineLimit (number)
 DC_FILE_READ_LINE_LIMIT  → fileReadLineLimit (number)
 ```
