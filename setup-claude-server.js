@@ -261,8 +261,33 @@ export default async function setup() {
 
         // Create default environment variables for Desktop Commander configuration
         const createDefaultEnvVars = () => {
-            // Generate default Downloads directory path for the current user
-            const downloadsPath = join(homedir(), 'Downloads');
+            // Generate default allowed directory paths for the current user
+            const screenshotsPath = join(homedir(), 'Pictures', 'Screenshots');
+            const claudePath = join(homedir(), 'Claude');
+            
+            // Create Claude directory if it doesn't exist and open it on Windows
+            try {
+                if (!existsSync(claudePath)) {
+                    logToFile(`Creating Claude directory: ${claudePath}`);
+                    mkdirSync(claudePath, { recursive: true });
+                    
+                    // Open the directory in Windows Explorer to show the user
+                    if (isWindows) {
+                        try {
+                            execAsync(`explorer "${claudePath}"`).catch(() => {
+                                // If explorer fails, just log it - don't fail the installation
+                                logToFile('Note: Could not open Claude folder in Explorer, but folder was created successfully.');
+                            });
+                            logToFile(`📁 Created and opened Claude folder: ${claudePath}`);
+                        } catch (explorerError) {
+                            logToFile('Note: Could not open Claude folder in Explorer, but folder was created successfully.');
+                        }
+                    }
+                }
+            } catch (dirError) {
+                logToFile(`Warning: Could not create Claude directory: ${dirError.message}`, true);
+                // Continue installation even if directory creation fails
+            }
             
             return {
                 // Desktop Commander configuration via environment variables
@@ -275,8 +300,8 @@ export default async function setup() {
                 "DC_FILE_WRITE_LINE_LIMIT": "50",
                 "DC_FILE_READ_LINE_LIMIT": "1000",
                 
-                // Directory access control (defaults to user's Downloads folder)
-                "DC_ALLOWED_DIRECTORIES": JSON.stringify([downloadsPath]),
+                // Directory access control (defaults to Screenshots and Claude folders)
+                "DC_ALLOWED_DIRECTORIES": JSON.stringify([screenshotsPath, claudePath]),
                 
                 // Command restrictions (add dangerous commands here)
                 "DC_BLOCKED_COMMANDS": JSON.stringify(

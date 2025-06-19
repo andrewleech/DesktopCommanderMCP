@@ -140,7 +140,7 @@ If you prefer to configure manually, add this entry to your claude_desktop_confi
         "DC_DEFAULT_SHELL": "bash",
         "DC_FILE_WRITE_LINE_LIMIT": "50",
         "DC_FILE_READ_LINE_LIMIT": "1000",
-        "DC_ALLOWED_DIRECTORIES": "[\"~/Downloads\"]",
+        "DC_ALLOWED_DIRECTORIES": "[\"~/Pictures/Screenshots\",\"~/Claude\"]",
         "DC_BLOCKED_COMMANDS": "[\"sudo\",\"rm\",\"chmod\",\"chown\"]",
         "DC_ALLOWED_COMMANDS": "[\"ls\",\"cat\",\"pwd\",\"which\",\"echo\"]"
       }
@@ -339,7 +339,7 @@ Add environment variables to your claude_desktop_config.json:
         "DC_DEFAULT_SHELL": "bash",
         "DC_FILE_WRITE_LINE_LIMIT": "50",
         "DC_FILE_READ_LINE_LIMIT": "1000",
-        "DC_ALLOWED_DIRECTORIES": "[\"~/Downloads\"]",
+        "DC_ALLOWED_DIRECTORIES": "[\"~/Pictures/Screenshots\",\"~/Claude\"]",
         "DC_BLOCKED_COMMANDS": "[\"sudo\", \"rm\", \"chmod\", \"chown\"]",
         "DC_ALLOWED_COMMANDS": "[\"ls\", \"cat\", \"pwd\", \"which\", \"echo\"]"
       }
