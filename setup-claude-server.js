@@ -261,33 +261,39 @@ export default async function setup() {
 
         // Create default environment variables for Desktop Commander configuration
         const createDefaultEnvVars = () => {
+            // Generate default Downloads directory path for the current user
+            const downloadsPath = join(homedir(), 'Downloads');
+            
             return {
                 // Desktop Commander configuration via environment variables
-                // Uncomment and modify the values below to customize your configuration:
+                // All settings are shown with their default values for easy customization
                 
+                // Shell configuration
                 "DC_DEFAULT_SHELL": isWindows ? "powershell.exe" : "bash",
+                
+                // File operation limits
                 "DC_FILE_WRITE_LINE_LIMIT": "50",
                 "DC_FILE_READ_LINE_LIMIT": "1000",
-                "DC_ALLOWED_DIRECTORIES": JSON.stringify(["/home/user/projects", "/opt/workspace"]),
-                // "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format"]),
+                
+                // Directory access control (defaults to user's Downloads folder)
+                "DC_ALLOWED_DIRECTORIES": JSON.stringify([downloadsPath]),
+                
+                // Command restrictions (add dangerous commands here)
+                "DC_BLOCKED_COMMANDS": JSON.stringify(["sudo", "rm -rf", "format", "del /f /s /q"]),
+                
+                // Privacy settings
+                "DC_TELEMETRY_ENABLED": "false",
                 
                 // SECURITY: Command execution is DISABLED by default for safety.
-                // Uncomment and customize DC_ALLOWED_COMMANDS to enable specific commands:
-                 "DC_ALLOWED_COMMANDS": JSON.stringify([
-                   // Safe file operations
-                   "ls", "dir", "pwd", "cd", 
-                // "cat", "type", "head", "tail", "find", "grep",
-                //   // Development tools  
-                  "git", 
-                //   "git", "npm", "yarn", "pip", "python", "node", "java", "mvn", "gradle",
-                //   // Build tools
-                //   "make", "cmake", "cargo", "go", "rustc", "gcc", "clang",
-                   // Text processing
-                //   "echo", "printf", "sort", "uniq", "wc", "awk", "sed",
-                //   // Archive tools
-                //   "zip", "unzip", "tar", "gzip", "gunzip"
-                 ])
-                
+                // The commands below are enabled as safe defaults for basic file operations and git:
+                "DC_ALLOWED_COMMANDS": JSON.stringify([
+                    // Safe file operations
+                    "ls", "dir", "pwd", "cd", "cat", "type", "head", "tail", "find", "grep",
+                    // Development tools
+                    "git", "npm", "yarn", "pip", "python", "node",
+                    // Text processing
+                    "echo", "printf", "sort", "uniq", "wc"
+                ])
             };
         };
 
@@ -314,7 +320,7 @@ export default async function setup() {
                         "command": isWindows ? "node.exe" : "node",
                         "args": [
                             "--inspect-brk=9229",
-                            join(__dirname, "dist", "index.js")
+                            join(__dirname, "index.js")
                         ],
                         "env": debugEnv
                     };
@@ -342,9 +348,9 @@ export default async function setup() {
                 // Standard configuration without debug
                 if (isNpx) {
                     serverConfig = {
-                        "command": isWindows ? "npx.cmd" : "npx",
+                        "command": isWindows ? "node.exe" : "node",
                         "args": [
-                            join(__dirname, "dist", "index.js")
+                            join(__dirname, "index.js")
                         ],
                         "env": createDefaultEnvVars()
                     };
