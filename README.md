@@ -1,8 +1,8 @@
-# Desktop Commander MCP
+# Desktop Commander Private
 ### Search, update, manage files and run terminal commands with AI
 
-[![npm downloads](https://img.shields.io/npm/dw/@wonderwhy-er/desktop-commander)](https://www.npmjs.com/package/@wonderwhy-er/desktop-commander)
-[![smithery badge](https://smithery.ai/badge/@wonderwhy-er/desktop-commander)](https://smithery.ai/server/@wonderwhy-er/desktop-commander)
+[![GitHub](https://img.shields.io/github/stars/andrewleech/DesktopCommanderMCP?style=social)](https://github.com/andrewleech/DesktopCommanderMCP)
+[![License](https://img.shields.io/github/license/andrewleech/DesktopCommanderMCP)](https://github.com/andrewleech/DesktopCommanderMCP/blob/main/LICENSE)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg)](https://www.buymeacoffee.com/wonderwhyer)
 
 
@@ -36,6 +36,31 @@ All of your AI development tools in one place.
 Desktop Commander puts all dev tools in one chat.
 Execute long-running terminal commands on your computer and manage processes through Model Context Protocol (MCP). Built on top of [MCP Filesystem Server](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) to provide additional search and replace file editing capabilities.
 
+## About This Fork
+
+This is a **privacy-focused and security-hardened fork** of the original [Desktop Commander](https://github.com/wonderwhy-er/DesktopCommanderMCP) by [@wonderwhy-er](https://github.com/wonderwhy-er). Full credit and appreciation goes to the original author for creating this exceptional tool.
+
+### Key Changes in This Fork
+
+**🔒 Privacy-First Design:**
+- **Complete removal of all telemetry and external data transmission**
+- **No Google Analytics, measurement IDs, or external API calls**
+- **Local-only audit logging** - all data stays on your machine
+- **Network isolation** - removed cross-fetch dependency and all external HTTP requests
+
+**🛡️ Security Enhancements:**
+- **Secure-by-default command execution** - commands disabled by default, must be explicitly allowlisted
+- **Enhanced allowlist system** - granular control over permitted commands
+- **Environment variable configuration** - migrated from MCP endpoints for better security
+- **Comprehensive security analysis** - detailed security boundary documentation
+
+**🔧 Technical Improvements:**
+- **Streamlined configuration** - simplified setup with better defaults
+- **Improved error handling** - more robust operation
+- **Better documentation** - clearer security and privacy information
+
+This fork maintains full compatibility with the original tool while prioritizing your privacy and security. All the powerful features you love are still here, just with better protection of your data and system.
+
 ## Features
 
 - Execute terminal commands with output streaming
@@ -67,49 +92,36 @@ Execute long-running terminal commands on your computer and manage processes thr
 ## Installation
 First, ensure you've downloaded and installed the [Claude Desktop app](https://claude.ai/download) and you have [npm installed](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
-> **📋 Update & Uninstall Information:** Before choosing an installation option, note that **only Options 1 and 3 have automatic updates**. Options 2, 4, and 5 require manual updates. See the sections below for update and uninstall instructions for each option.
+### Option 1: Direct Installation (Recommended)
+Install directly from GitHub using npx:
 
-### Option 1: Install through npx ⭐ **Auto-Updates**
-Just run this in terminal:
-```
-npx @wonderwhy-er/desktop-commander@latest setup
-```
-
-For debugging mode (allows Node.js inspector connection):
-```
-npx @wonderwhy-er/desktop-commander@latest setup --debug
+```bash
+npx github:andrewleech/DesktopCommanderMCP setup
 ```
 Restart Claude if running.
 
-**✅ Auto-Updates:** Yes - automatically updates when you restart Claude  
-**🔄 Manual Update:** Run the setup command again  
-**🗑️ Uninstall:** Run `npx @wonderwhy-er/desktop-commander@latest setup --uninstall`
-
-### Option 2: Using bash script installer (macOS) ⭐ **Auto-Updates**
-For macOS users, you can use our automated bash installer which will check your Node.js version, install it if needed, and automatically configure Desktop Commander:
+For debugging mode (allows Node.js inspector connection):
+```bash
+npx github:andrewleech/DesktopCommanderMCP setup --debug
 ```
-curl -fsSL https://raw.githubusercontent.com/wonderwhy-er/DesktopCommanderMCP/refs/heads/main/install.sh | bash
-```
-This script handles all dependencies and configuration automatically for a seamless setup experience.
 
-**✅ Auto-Updates:** Yes - requires manual updates  
-**🔄 Manual Update:** Re-run the bash installer command above  
-**🗑️ Uninstall:** Remove the MCP server entry from your Claude config file and delete the cloned repository if it exists
+**Updates:** Re-run the npx command to get latest version  
+**Uninstall:** Remove MCP server entry from Claude config
 
-### Option 3: Installing via Smithery ⭐ **Auto-Updates**
-
-To install Desktop Commander for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@wonderwhy-er/desktop-commander):
+### Option 2: Clone from Source
+If you prefer to clone the repository locally:
 
 ```bash
-npx -y @smithery/cli install @wonderwhy-er/desktop-commander --client claude
+git clone https://github.com/andrewleech/DesktopCommanderMCP.git
+cd DesktopCommanderMCP
+npm run setup
 ```
 
-**✅ Auto-Updates:** Yes - automatically updates when you restart Claude  
-**🔄 Manual Update:** Re-run the Smithery install command  
-**🗑️ Uninstall:** `npx -y @smithery/cli uninstall @wonderwhy-er/desktop-commander --client claude`
+**Manual Updates:** `cd DesktopCommanderMCP && git pull && npm run setup`  
+**Uninstall:** Remove the cloned directory and remove MCP server entry from Claude config
 
-### Option 4: Add to claude_desktop_config manually ❌ **Manual Updates**
-Add this entry to your claude_desktop_config.json:
+### Option 3: Manual Configuration
+If you prefer to configure manually, add this entry to your claude_desktop_config.json:
 
 - On Mac: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 - On Windows: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -119,58 +131,30 @@ Add this entry to your claude_desktop_config.json:
 {
   "mcpServers": {
     "desktop-commander": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "@wonderwhy-er/desktop-commander"
+        "/path/to/your/DesktopCommanderMCP/dist/index.js"
       ]
     }
   }
 }
 ```
-Restart Claude if running.
+Replace `/path/to/your/` with the actual path where you cloned the repository.
 
-**❌ Auto-Updates:** No - uses npx but config might not update automatically  
-**🔄 Manual Update:** Usually automatic via npx, but if issues occur, update your config file or re-add the entry  
-**🗑️ Uninstall:** Remove the "desktop-commander" entry from your claude_desktop_config.json file
-
-### Option 5: Checkout locally ❌ **Manual Updates**
-1. Clone and build:
-```bash
-git clone https://github.com/wonderwhy-er/DesktopCommanderMCP.git
-cd DesktopCommanderMCP
-npm run setup
-```
-Restart Claude if running.
-
-The setup command will:
-- Install dependencies
-- Build the server
-- Configure Claude's desktop app
-- Add MCP servers to Claude's config if needed
-
-**❌ Auto-Updates:** No - requires manual git updates  
-**🔄 Manual Update:** `cd DesktopCommanderMCP && git pull && npm run setup`  
-**🗑️ Uninstall:** Remove the cloned directory and remove MCP server entry from Claude config
+**Manual Update:** `cd DesktopCommanderMCP && git pull && npm run build`  
+**Uninstall:** Remove the "desktop-commander" entry from your claude_desktop_config.json file
 
 ## Updating & Uninstalling Desktop Commander
 
-### Automatic Updates (Options 1 & 3 only)
-**Options 1 (npx) and 3 (Smithery)** automatically update to the latest version whenever you restart Claude. No manual intervention needed.
+### Updates
+**Option 1 (npx):** Re-run `npx github:andrewleech/DesktopCommanderMCP setup`  
+**Option 2 (cloned):** `cd DesktopCommanderMCP && git pull && npm run setup`  
+**Option 3 (manual):** Update your local installation and restart Claude
 
-### Manual Updates (Options 2, 4 & 5)
-- **Option 2 (bash installer):** Re-run the curl command
-- **Option 4 (manual config):** Usually automatic via npx, but re-add config entry if issues occur
-- **Option 5 (local checkout):** `cd DesktopCommanderMCP && git pull && npm run setup`
-
-### Uninstalling Desktop Commander
-- **Option 1:** `npx @wonderwhy-er/desktop-commander@latest setup --uninstall`
-- **Option 2:** Remove MCP server entry from Claude config and delete any cloned repositories
-- **Option 3:** `npx -y @smithery/cli uninstall @wonderwhy-er/desktop-commander --client claude`
-- **Option 4:** Remove the "desktop-commander" entry from your claude_desktop_config.json file
-- **Option 5:** Delete the cloned directory and remove MCP server entry from Claude config
-
-After uninstalling, restart Claude Desktop to complete the removal.
+### Uninstalling
+1. Remove the "desktop-commander" entry from your claude_desktop_config.json file
+2. If you cloned the repository, delete the DesktopCommanderMCP directory
+3. Restart Claude Desktop to complete the removal
 
 ## Usage
 
@@ -341,8 +325,8 @@ Add environment variables to your claude_desktop_config.json:
 {
   "mcpServers": {
     "desktop-commander": {
-      "command": "npx",
-      "args": ["@wonderwhy-er/desktop-commander@latest"],
+      "command": "node",
+      "args": ["/path/to/your/DesktopCommanderMCP/dist/index.js"],
       "env": {
         "DC_DEFAULT_SHELL": "bash",
         "DC_TELEMETRY_ENABLED": "false",
@@ -450,10 +434,7 @@ This allows you to use shell-specific features or maintain consistent environmen
 If you need to debug the server, you can install it in debug mode:
 
 ```bash
-# Using npx
-npx @wonderwhy-er/desktop-commander@latest setup --debug
-
-# Or if installed locally
+# From the cloned repository
 npm run setup:debug
 ```
 

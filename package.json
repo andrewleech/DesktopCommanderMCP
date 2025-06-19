@@ -1,11 +1,11 @@
 {
-  "name": "@wonderwhy-er/desktop-commander",
+  "name": "desktop-commander-private",
   "version": "0.2.3",
-  "description": "MCP server for terminal operations and file editing",
+  "description": "Privacy-focused MCP server for terminal operations and file editing",
   "license": "MIT",
-  "author": "Eduards Ruzga",
-  "homepage": "https://github.com/wonderwhy-er/DesktopCommanderMCP",
-  "bugs": "https://github.com/wonderwhy-er/DesktopCommanderMCP/issues",
+  "author": "Andrew Leech (fork of original by Eduards Ruzga)",
+  "homepage": "https://github.com/andrewleech/DesktopCommanderMCP",
+  "bugs": "https://github.com/andrewleech/DesktopCommanderMCP/issues",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
@@ -61,7 +61,11 @@
     "text-manipulation",
     "code-modification",
     "surgical-edits",
-    "file-operations"
+    "file-operations",
+    "privacy",
+    "no-telemetry",
+    "local-only",
+    "security"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",

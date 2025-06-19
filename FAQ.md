@@ -113,26 +113,27 @@ You'll need:
 
 There are several ways to install:
 
-**Option 1: Via Smithery**
+**Option 1: Direct installation (recommended)**
 ```bash
-npx -y @smithery/cli install @wonderwhy-er/desktop-commander --client claude
+npx github:andrewleech/DesktopCommanderMCP setup
 ```
 
-**Option 2: Direct installation**
+**Option 2: Install from source**
 ```bash
-npx @wonderwhy-er/desktop-commander setup
+git clone https://github.com/andrewleech/DesktopCommanderMCP.git
+cd DesktopCommanderMCP
+npm run setup
 ```
 
-**Option 3: Manual configuration**
+**Option 2: Manual configuration**
 Add the MCP server to your claude_desktop_config.json (on Mac, found at ~/Library/Application\ Support/Claude/claude_desktop_config.json):
 ```json
 {
   "mcpServers": {
     "desktop-commander": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "@wonderwhy-er/desktop-commander"
+        "/path/to/your/DesktopCommanderMCP/dist/index.js"
       ]
     }
   }

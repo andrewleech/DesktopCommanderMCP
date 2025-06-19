@@ -177,7 +177,6 @@ async function restartClaude() {
             logToFile("\n✅ Installation successfully completed! Thank you for using Desktop Commander!\n");
             logToFile('\nThe server is available as "desktop-commander" in Claude\'s MCP server list');
             
-            logToFile("Future updates will install automatically — no need to run this setup again.\n\n");
             logToFile("💬 Need help or found an issue? Join our community: https://discord.com/invite/kQ27sNnZr7\n\n")
         } catch (startError) {
             throw startError; // Re-throw to handle in the outer catch
@@ -311,10 +310,7 @@ export default async function setup() {
                         "command": isWindows ? "node.exe" : "node",
                         "args": [
                             "--inspect-brk=9229",
-                            isWindows ?
-                                join(process.env.APPDATA || '', "npm", "npx.cmd").replace(/\\/g, '\\\\') :
-                                "$(which npx)",
-                            "@wonderwhy-er/desktop-commander@latest"
+                            join(__dirname, "dist", "index.js")
                         ],
                         "env": debugEnv
                     };
@@ -344,7 +340,7 @@ export default async function setup() {
                     serverConfig = {
                         "command": isWindows ? "npx.cmd" : "npx",
                         "args": [
-                            "@wonderwhy-er/desktop-commander@latest"
+                            join(__dirname, "dist", "index.js")
                         ],
                         "env": createDefaultEnvVars()
                     };

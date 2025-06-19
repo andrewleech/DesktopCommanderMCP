@@ -72,8 +72,8 @@ Example configuration in claude_desktop_config.json:
 {
   "mcpServers": {
     "desktop-commander": {
-      "command": "npx",
-      "args": ["@wonderwhy-er/desktop-commander@latest"],
+      "command": "node",
+      "args": ["/path/to/your/DesktopCommanderMCP/dist/index.js"],
       "env": {
         "DC_DEFAULT_SHELL": "bash",
         "DC_TELEMETRY_ENABLED": "false",
